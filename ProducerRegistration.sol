@@ -49,4 +49,7 @@ contract ProducerRegistration {
     }
 // the above function seems redundant when deployed on Remix (we can call the value coffeeBatches). Otherwise, compilation, deployment and unit test OK
 
+// getter function to use in other contracts to check if a batch is registered
+function isBatchRegistered(string memory _batchId) public view returns (bool) {
+    return coffeeBatches[_batchId].isRegistered;
 }
