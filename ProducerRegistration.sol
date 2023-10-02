@@ -47,5 +47,6 @@ contract ProducerRegistration {
         CoffeeBatch memory batch = coffeeBatches[_batchId];
         return (batch.origin, batch.cultivationMethod, batch.harvestDate, batch.certification);
     }
+// the above function seems redundant when deployed on Remix (we can call the value coffeeBatches). Otherwise, compilation, deployment and unit test OK
 
 }
