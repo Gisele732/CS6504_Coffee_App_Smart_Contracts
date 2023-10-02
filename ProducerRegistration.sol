@@ -41,13 +41,38 @@ contract ProducerRegistration {
         });
     }
 
-    // retrieve the details of a coffee batch using its batch ID
-    function getBatchDetails(string memory _batchId) public view returns (string memory, string memory, uint256, string memory) {
+   // retrieve the details of a coffee batch using its batch ID
+    function getBatchDetails(string memory _batchId) public view returns (string[] memory) {
         require(coffeeBatches[_batchId].isRegistered, "Batch ID not found.");
         CoffeeBatch memory batch = coffeeBatches[_batchId];
-        return (batch.origin, batch.cultivationMethod, batch.harvestDate, batch.certification);
+        string[] memory details = new string[](4);
+        details[0] = batch.origin;
+        details[1] = batch.cultivationMethod;
+        details[2] = uintToString(batch.harvestDate);
+        details[3] = batch.certification;
+        return details;
     }
 // the above function seems redundant when deployed on Remix (we can call the value coffeeBatches). Otherwise, compilation, deployment and unit test OK
+
+// Helper function to convert a uint256 to a string
+    function uintToString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
 
 // getter function to use in other contracts to check if a batch is registered
 function isBatchRegistered(string memory _batchId) public view returns (bool) {
