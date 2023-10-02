@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./ProducerRegistration.sol";
+import "./TransitionContract.sol";
+
+contract RetailerRegistration {
+
+    ProducerRegistration public producerRegistration;
+    CoffeeBatchMovement public coffeeBatchMovement;
+
+    constructor(
+            address _producerRegistrationAddress,
+            address _coffeeBatchMovementAddress
+        ) {
+            producerRegistration = ProducerRegistration(_producerRegistrationAddress);
+            coffeeBatchMovement = CoffeeBatchMovement(_coffeeBatchMovementAddress);
+        }
+
+    // struct that consolidates information from ProducerRegistration and TransitionContract
+    struct FinalDetails {
+        uint256 timestamp;
+        string retailerName;
+        //string coffeeInformation;
+        string coffeeMovements;
+        uint256 retailPrice;
+    }
+
+    mapping(string=>FinalDetails) public finalDetails;
+
+    // create a final product registration that will be used by the retailer
+    function registerRetailCoffeeBatch (
+        string memory _retailerName,
+        string memory _batchId,
+        uint256 _retailPrice) public {
+            require(producerRegistration.isBatchRegistered(_batchId), "Batch ID not found");
+                finalDetails[_batchId] = FinalDetails({
+                    timestamp: block.timestamp,
+                    retailerName : _retailerName,
+                    //Anne-Lise: following lines commented out because line 42 results in an error "ParserError: Expected ',' but got '{'"
+                    //coffeeInformation: producerRegistrationToString(
+                        //new string[](1){origin},
+                        //new string[](1){cultivationMethod},
+                        //new uint256[](1){harvestDate},
+                        //new string[](1){certification}
+                    //),
+                    coffeeMovements : movementsToString(coffeeBatchMovement.getMovements(_batchId)),
+                    retailPrice : _retailPrice
+                });
+
+    }
+
+    function getFinalDetails (string memory _batchId) public view returns (string memory, string memory, uint256) {
+        require(producerRegistration.isBatchRegistered(_batchId), "Batch ID not found");
+        FinalDetails memory details = finalDetails[_batchId];
+        return (details.retailerName, details.coffeeMovements, details.retailPrice);
+
+    }
+
+    // Helper function to convert an array of Movement structs to a string
+    function movementsToString(CoffeeBatchMovement.Movement[] memory movements) internal pure returns (string memory) {
+        string memory result = "";
+        for (uint256 i = 0; i < movements.length; i++) {
+            string memory movementString = string(abi.encodePacked(
+                "Timestamp: ", uintToString(movements[i].timestamp), "\n",
+                "Location: ", movements[i].location, "\n",
+                "Action: ", movements[i].action, "\n"
+            ));
+            result = string(abi.encodePacked(result, movementString));
+        }
+        return result;
+    }
+
+    // helper function to convert an array of ProducerRegistration structs to a string
+   function producerRegistrationToString(string[] memory origins, string[] memory cultivationMethods, uint256[] memory harvestDates, string[] memory certifications) internal pure returns (string memory) {
+    require(
+        origins.length == cultivationMethods.length &&
+        origins.length == harvestDates.length &&
+        origins.length == certifications.length,
+        "Input arrays must have the same length."
+    );
+
+    string memory result = "";
+    for (uint256 i = 0; i < origins.length; i++) {
+        string memory coffeeBatchString = string(abi.encodePacked(
+            "Origin: ", origins[i], "\n",
+            "Cultivation Method: ", cultivationMethods[i], "\n",
+            "Harvest Date: ", uintToString(harvestDates[i]), "\n",
+            "Certification: ", certifications[i], "\n"
+        ));
+        result = string(abi.encodePacked(result, coffeeBatchString));
+    }
+    return result;
+}
+
+     // Helper function to convert a uint256 to a string
+    function uintToString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+}
