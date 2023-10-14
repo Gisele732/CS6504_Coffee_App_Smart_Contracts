@@ -6,6 +6,8 @@
 // - Update details of a batch if necessary.
 // - Retrieve details of a batch.
 
+// TODO: Create a batch detail update function
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -41,20 +43,14 @@ contract ProducerRegistration {
         });
     }
 
-   // retrieve the details of a coffee batch using its batch ID
-    function getBatchDetails(string memory _batchId) public view returns (string[] memory) {
+    // retrieve the details of a coffee batch using its batch ID
+    function getBatchDetails(string memory _batchId) public view returns (string memory, string memory, uint256, string memory) {
         require(coffeeBatches[_batchId].isRegistered, "Batch ID not found.");
         CoffeeBatch memory batch = coffeeBatches[_batchId];
-        string[] memory details = new string[](4);
-        details[0] = batch.origin;
-        details[1] = batch.cultivationMethod;
-        details[2] = uintToString(batch.harvestDate);
-        details[3] = batch.certification;
-        return details;
+        return (batch.origin, batch.cultivationMethod, batch.harvestDate, batch.certification);
     }
-// the above function seems redundant when deployed on Remix (we can call the value coffeeBatches). Otherwise, compilation, deployment and unit test OK
-
-// Helper function to convert a uint256 to a string
+    
+    // Helper function to convert a uint256 to a string
     function uintToString(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
             return "0";
@@ -74,7 +70,9 @@ contract ProducerRegistration {
         return string(buffer);
     }
 
-// getter function to use in other contracts to check if a batch is registered
-function isBatchRegistered(string memory _batchId) public view returns (bool) {
+
+    function isBatchRegistered(string memory _batchId) public view returns (bool) {
     return coffeeBatches[_batchId].isRegistered;
 }
+}
+
