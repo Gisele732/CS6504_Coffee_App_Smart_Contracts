@@ -49,13 +49,6 @@ contract RetailerRegistration {
             });
     }
 
-    function getFinalDetails (string memory _batchId) public view returns (string memory, string memory, uint256) {
-        require(producerRegistration.isBatchRegistered(_batchId), "Batch ID not found");
-        FinalDetails memory details = finalDetails[_batchId];
-        return (details.retailerName, details.coffeeMovements, details.retailPrice);
-
-    }
-
     // Helper function to convert an array of Movement structs to a string
     function movementsToString(CoffeeBatchMovement.Movement[] memory movements) internal pure returns (string memory) {
         string memory result = "";
