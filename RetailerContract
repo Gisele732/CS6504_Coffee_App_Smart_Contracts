@@ -34,13 +34,13 @@ contract RetailerRegistration {
         string memory _batchId,
         uint256 _retailPrice) public {
             require(producerRegistration.isBatchRegistered(_batchId), "Batch ID not found");
-            (string memory batchOrigin, string memory batchCultivationMethod, uint256 batchHarvestDate, string memory batchCertification) = producerRegistration.getBatchDetails(_batchId);
+            (string memory batchOrigin, string memory batchprocessingMethod, uint256 batchHarvestDate, string memory batchCertification) = producerRegistration.getBatchDetails(_batchId);
             finalDetails[_batchId] = FinalDetails({
                 timestamp: block.timestamp,
                 retailerName : _retailerName,
                 coffeeInformation: producerRegistrationToString(
                     batchOrigin,
-                    batchCultivationMethod,
+                    batchprocessingMethod,
                     batchHarvestDate,
                     batchCertification
                 ),
@@ -64,18 +64,17 @@ contract RetailerRegistration {
     }
 
     // helper function to convert an array of ProducerRegistration structs to a string
-   function producerRegistrationToString(string memory origin, string memory cultivationMethod, uint256 harvestDate, string memory certification) internal pure returns (string memory) {
+   function producerRegistrationToString(string memory origin, string memory processingMethod, uint256 harvestDate, string memory certification) internal pure returns (string memory) {
         string memory result = "";
         string memory coffeeBatchString = string(abi.encodePacked(
             "Origin: ", origin, "\n",
-            "Cultivation Method: ", cultivationMethod, "\n",
+            "processing Method: ", processingMethod, "\n",
             "Harvest Date: ", uintToString(harvestDate), "\n",
             "Certification: ", certification, "\n"
         ));
         result = string(abi.encodePacked(result, coffeeBatchString));
         return result;
     }
-
 
     // Helper function to convert a uint256 to a string
     function uintToString(uint256 value) internal pure returns (string memory) {
